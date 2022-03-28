@@ -4,18 +4,18 @@ use tokio::runtime;
 async fn parse_ssh_config() -> Result<(), Box<dyn std::error::Error>> {
     let ssh_config = SshConfigParser::parse_home().await?;
 
-    // Print first host config
-    if let Some((first_host, host_config)) = ssh_config.iter().next() {
-        println!("Host: {}", first_host);
+    // // Print first host config
+    // if let Some((first_host, host_config)) = ssh_config.iter().next() {
+    //     println!("Host: {}", first_host);
 
-        // Print its configured SSH key if any
-        if let Some(identity_file) = host_config.get(&SshOptionKey::IdentityFile) {
-            println!("  {} {}", SshOptionKey::IdentityFile, identity_file);
-        }
-    }
+    //     // Print its configured SSH key if any
+    //     if let Some(identity_file) = host_config.get(&SshOptionKey::IdentityFile) {
+    //         println!("  {} {}", SshOptionKey::IdentityFile, identity_file);
+    //     }
+    // }
 
     // Print all host configs
-    println!();
+    // println!();
     println!("{:#?}", ssh_config);
 
     Ok(())

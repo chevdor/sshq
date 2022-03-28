@@ -1,0 +1,6 @@
+= sshq
+
+A quick version for now.
+
+HOST=<your_host>
+cargo run -- | grep -E -o -A 10 "$HOST.*SshHostConfig"
