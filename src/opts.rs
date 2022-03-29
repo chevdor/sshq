@@ -1,10 +1,10 @@
 use clap::{crate_authors, crate_version, Parser};
 
-/// `subwasm` allows fetching, parsing and calling some methods on WASM runtimes of Substrate based chains.
+/// `sshq` parses your ssh config and present the information back to you
 #[derive(Parser)]
 #[clap(version = crate_version!(), author = crate_authors!())]
 pub struct Opts {
-	/// Output as json
+	/// Search pattern
 	#[clap(index = 1)]
 	pub pattern: Option<String>,
 }

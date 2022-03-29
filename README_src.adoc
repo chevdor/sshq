@@ -1,0 +1,13 @@
+= sshq
+
+This command line utility allows querying your ssh config.
+
+== Install
+
+    cargo install sshq
+
+== Usage
+
+----
+include::doc/usage.adoc[]
+----
