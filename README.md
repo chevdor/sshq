@@ -8,6 +8,8 @@ This command line utility allows querying your ssh config.
 
 ## Usage
 
+## Main
+
     sshq 0.1.1
     Chevdor <chevdor@gmail.com>
     `sshq` parses your ssh config and present the information back to you
@@ -24,6 +26,37 @@ This command line utility allows querying your ssh config.
         help      Print this message or the help of the given subcommand(s)
         list      The `info` command returns summarized information about a runtime
         search    The `info` command returns summarized information about a runtime
+
+## List
+
+    sshq-list 0.1.1
+    Chevdor <chevdor@gmail.com>
+    The `info` command returns summarized information about a runtime
+
+    USAGE:
+        sshq list [OPTIONS]
+
+    OPTIONS:
+        -h, --help       Print help information
+        -j, --json       Output as json
+        -V, --version    Print version information
+
+## Search
+
+    sshq-search 0.1.1
+    Chevdor <chevdor@gmail.com>
+    The `info` command returns summarized information about a runtime
+
+    USAGE:
+        sshq search [OPTIONS] [PATTERN]
+
+    ARGS:
+        <PATTERN>    Search pattern
+
+    OPTIONS:
+        -h, --help       Print help information
+        -j, --json       Output as json
+        -V, --version    Print version information
 
 ## Use cases
 

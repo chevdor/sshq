@@ -1,3 +1,5 @@
+:toc:
+
 = sshq
 
 This command line utility allows querying your ssh config.
@@ -8,9 +10,7 @@ This command line utility allows querying your ssh config.
 
 == Usage
 
-----
-include::doc/usage.adoc[]
-----
+include::doc/usage.adoc[leveloffset=+1]
 
 == Use cases
 

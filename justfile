@@ -15,7 +15,9 @@ test_all:
 
 # Generate usage samples
 _usage:
-	cargo run -q -- --help > doc/usage.adoc
+  cargo run -q -- --help > doc/main.adoc
+  cargo run -q -- search --help > doc/search.adoc
+  cargo run -q -- list --help > doc/list.adoc
 
 # Generate documentation
 doc: _usage

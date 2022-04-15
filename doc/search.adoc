@@ -1,0 +1,14 @@
+sshq-search 0.1.1
+Chevdor <chevdor@gmail.com>
+The `info` command returns summarized information about a runtime
+
+USAGE:
+    sshq search [OPTIONS] [PATTERN]
+
+ARGS:
+    <PATTERN>    Search pattern
+
+OPTIONS:
+    -h, --help       Print help information
+    -j, --json       Output as json
+    -V, --version    Print version information
