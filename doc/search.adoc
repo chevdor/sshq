@@ -1,6 +1,6 @@
-sshq-search 0.1.1
+sshq-search 0.1.2
 Chevdor <chevdor@gmail.com>
-The `info` command returns summarized information about a runtime
+The `search` command searches for a given pattern
 
 USAGE:
     sshq search [OPTIONS] [PATTERN]

@@ -7,7 +7,7 @@ _default:
 
 # Test / watch
 test:
-	cargo watch -x "test -- --no-capture"
+	cargo watch -x "test -- --nocapture"
 
 # Test including ignored tests
 test_all:

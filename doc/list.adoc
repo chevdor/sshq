@@ -1,6 +1,6 @@
-sshq-list 0.1.1
+sshq-list 0.1.2
 Chevdor <chevdor@gmail.com>
-The `info` command returns summarized information about a runtime
+The `list` command returns the list of entries
 
 USAGE:
     sshq list [OPTIONS]
