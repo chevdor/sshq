@@ -1,14 +1,11 @@
-sshq-search 0.1.2
-Chevdor <chevdor@gmail.com>
 The `search` command searches for a given pattern
 
-USAGE:
-    sshq search [OPTIONS] [PATTERN]
+Usage: sshq search [OPTIONS] [PATTERN]
 
-ARGS:
-    <PATTERN>    Search pattern
+Arguments:
+  [PATTERN]  Search pattern
 
-OPTIONS:
-    -h, --help       Print help information
-    -j, --json       Output as json
-    -V, --version    Print version information
+Options:
+  -j, --json     Output as json
+  -h, --help     Print help information
+  -V, --version  Print version information

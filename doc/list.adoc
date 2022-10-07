@@ -1,11 +1,8 @@
-sshq-list 0.1.2
-Chevdor <chevdor@gmail.com>
 The `list` command returns the list of entries
 
-USAGE:
-    sshq list [OPTIONS]
+Usage: sshq list [OPTIONS]
 
-OPTIONS:
-    -h, --help       Print help information
-    -j, --json       Output as json
-    -V, --version    Print version information
+Options:
+  -j, --json     Output as json
+  -h, --help     Print help information
+  -V, --version  Print version information

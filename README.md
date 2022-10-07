@@ -10,53 +10,44 @@ This command line utility allows querying your ssh config.
 
 ## Main
 
-    sshq 0.1.2
-    Chevdor <chevdor@gmail.com>
     `sshq` parses your ssh config and present the information back to you
 
-    USAGE:
-        sshq [OPTIONS] <SUBCOMMAND>
+    Usage: sshq [OPTIONS] <COMMAND>
 
-    OPTIONS:
-        -h, --help       Print help information
-        -j, --json       Output as json
-        -V, --version    Print version information
+    Commands:
+      list    The `list` command returns the list of entries
+      search  The `search` command searches for a given pattern
+      help    Print this message or the help of the given subcommand(s)
 
-    SUBCOMMANDS:
-        help      Print this message or the help of the given subcommand(s)
-        list      The `list` command returns the list of entries
-        search    The `search` command searches for a given pattern
+    Options:
+      -j, --json     Output as json
+      -h, --help     Print help information
+      -V, --version  Print version information
 
 ## List
 
-    sshq-list 0.1.2
-    Chevdor <chevdor@gmail.com>
     The `list` command returns the list of entries
 
-    USAGE:
-        sshq list [OPTIONS]
+    Usage: sshq list [OPTIONS]
 
-    OPTIONS:
-        -h, --help       Print help information
-        -j, --json       Output as json
-        -V, --version    Print version information
+    Options:
+      -j, --json     Output as json
+      -h, --help     Print help information
+      -V, --version  Print version information
 
 ## Search
 
-    sshq-search 0.1.2
-    Chevdor <chevdor@gmail.com>
     The `search` command searches for a given pattern
 
-    USAGE:
-        sshq search [OPTIONS] [PATTERN]
+    Usage: sshq search [OPTIONS] [PATTERN]
 
-    ARGS:
-        <PATTERN>    Search pattern
+    Arguments:
+      [PATTERN]  Search pattern
 
-    OPTIONS:
-        -h, --help       Print help information
-        -j, --json       Output as json
-        -V, --version    Print version information
+    Options:
+      -j, --json     Output as json
+      -h, --help     Print help information
+      -V, --version  Print version information
 
 ## Use cases
 
