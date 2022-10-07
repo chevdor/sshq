@@ -1,5 +1,5 @@
 mod opts;
-use clap::{crate_name, crate_version, StructOpt};
+use clap::{crate_name, crate_version, Parser};
 use env_logger::Env;
 use opts::*;
 use ssh_cfg::{SshConfigParser, SshOptionKey};
