@@ -19,7 +19,7 @@ async fn parse_ssh_config() -> Result<(), Box<dyn std::error::Error>> {
 			if let Some(p) = pattern {
 				if let Some((host_name, host_config)) = ssh_config.iter().find(|c| c.0.contains(&p)) {
 					// if let Some((host_name, host_config)) = ssh_config.iter().find(|c| c.0 == &p) {
-					println!("Host: {}", host_name);
+					println!("Host: {host_name}");
 
 					if let Some(hostname) = host_config.get(&SshOptionKey::Hostname) {
 						println!("  {:<15} {}", SshOptionKey::Hostname.to_string(), hostname);
@@ -52,7 +52,7 @@ async fn parse_ssh_config() -> Result<(), Box<dyn std::error::Error>> {
 				}
 			} else {
 				// Print all host configs
-				println!("{:#?}", ssh_config);
+				println!("{ssh_config:#?}");
 			}
 		}
 		SubCommand::List(_list_opts) => {
@@ -60,7 +60,7 @@ async fn parse_ssh_config() -> Result<(), Box<dyn std::error::Error>> {
 			ssh_config.iter().for_each(|(host, _config)| {
 				let split = host.split(' ');
 				for s in split {
-					println!("{}", s)
+					println!("{s}")
 				}
 			});
 		}
