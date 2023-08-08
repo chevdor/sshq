@@ -1,1 +1,4 @@
 /target
+executables
+.env*
+!.env-example

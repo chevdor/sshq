@@ -1,0 +1,14 @@
+Host *
+  #  UseKeychain yes
+   AddKeysToAgent yes
+   ServerAliveInterval 120
+
+Include config.d/sample
+
+host foo
+  Hostname 192.168.1.2
+  User fooname
+  PubKeyAuthentication yes
+  IdentitiesOnly=yes
+  IdentityFile ~/.ssh/id_rsa.pub
+  RequestTTY yes

@@ -7,14 +7,20 @@ use tokio::runtime;
 
 async fn parse_ssh_config() -> Result<(), Box<dyn std::error::Error>> {
 	env_logger::Builder::from_env(Env::default().default_filter_or("none")).init();
-	log::info!("Running {} v{}", crate_name!(), crate_version!());
+	log::debug!("Running {} v{}", crate_name!(), crate_version!());
 
 	let opts: Opts = Opts::parse();
-	let ssh_config = SshConfigParser::parse_home().await?;
+	log::debug!("{:#?}", opts);
+
+	let ssh_config = if let Some(file) = opts.file {
+		SshConfigParser::parse(&file).await?
+	} else {
+		SshConfigParser::parse_home().await?
+	};
 
 	match opts.subcmd {
 		SubCommand::Search(search_opts) => {
-			log::info!("search");
+			log::debug!("search");
 			let pattern = search_opts.pattern;
 			if let Some(p) = pattern {
 				if let Some((host_name, host_config)) = ssh_config.iter().find(|c| c.0.contains(&p)) {
@@ -56,7 +62,7 @@ async fn parse_ssh_config() -> Result<(), Box<dyn std::error::Error>> {
 			}
 		}
 		SubCommand::List(_list_opts) => {
-			log::info!("list");
+			log::debug!("list");
 			ssh_config.iter().for_each(|(host, _config)| {
 				let split = host.split(' ');
 				for s in split {
