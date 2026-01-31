@@ -5,6 +5,31 @@ use opts::*;
 use ssh_cfg::{SshConfigParser, SshOptionKey};
 use tokio::runtime;
 
+/// Preprocess SSH config content to comment out unsupported options
+fn preprocess_ssh_config_content(content: &str) -> String {
+	// List of unsupported options to comment out
+	let unsupported_options = vec!["UseKeychain", "IgnoreUnknown"];
+
+	let mut cleaned_content = String::new();
+	for line in content.lines() {
+		let trimmed = line.trim_start();
+		let should_comment = unsupported_options.iter().any(|opt| {
+			trimmed.starts_with(opt)
+				&& (trimmed.len() == opt.len() || trimmed.chars().nth(opt.len()).map_or(false, |c| c.is_whitespace()))
+		});
+
+		if should_comment && !trimmed.starts_with('#') {
+			cleaned_content.push_str(&format!("# {}\n", line));
+			log::debug!("Commented out unsupported option: {}", trimmed);
+		} else {
+			cleaned_content.push_str(line);
+			cleaned_content.push('\n');
+		}
+	}
+
+	cleaned_content
+}
+
 async fn parse_ssh_config() -> Result<(), Box<dyn std::error::Error>> {
 	env_logger::Builder::from_env(Env::default().default_filter_or("none")).init();
 	log::debug!("Running {} v{}", crate_name!(), crate_version!());
@@ -12,11 +37,16 @@ async fn parse_ssh_config() -> Result<(), Box<dyn std::error::Error>> {
 	let opts: Opts = Opts::parse();
 	log::debug!("{:#?}", opts);
 
-	let ssh_config = if let Some(file) = opts.file {
-		SshConfigParser::parse(&file).await?
+	// Read and preprocess the config file in memory
+	let content = if let Some(file) = &opts.file {
+		tokio::fs::read_to_string(file).await?
 	} else {
-		SshConfigParser::parse_home().await?
+		let config_path = dirs::home_dir().ok_or("Could not find home directory")?.join(".ssh").join("config");
+		tokio::fs::read_to_string(&config_path).await?
 	};
+
+	let cleaned_content = preprocess_ssh_config_content(&content);
+	let ssh_config = SshConfigParser::parse_config_contents(&cleaned_content)?;
 
 	match opts.subcmd {
 		SubCommand::Search(search_opts) => {
