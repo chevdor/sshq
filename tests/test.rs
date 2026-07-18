@@ -80,6 +80,61 @@ fn list_resolves_glob_include() {
 }
 
 #[test]
+fn list_json_outputs_valid_json() {
+	let mut cmd = get_command();
+	env::set_var("RUST_LOG", "none");
+
+	// Plain `list` prints one host per line; `list -j` must emit JSON instead.
+	let plain = String::from_utf8(get_command().args(["list", "tests/data/config"]).output().unwrap().stdout).unwrap();
+
+	let assert = cmd.args(["list", "-j", "tests/data/config"]).assert();
+	let output = assert.success().code(0);
+	let stdout = String::from_utf8(output.get_output().stdout.to_vec()).unwrap();
+
+	assert_ne!(plain, stdout, "`-j` output should differ from the plain listing");
+
+	let parsed: serde_json::Value = serde_json::from_str(&stdout).expect("`list -j` must produce valid JSON");
+	assert!(parsed.is_array(), "expected a JSON array, got: {stdout}");
+}
+
+#[test]
+fn list_json_includes_source() {
+	let mut cmd = get_command();
+	env::set_var("RUST_LOG", "none");
+
+	let assert = cmd.args(["list", "-j", "tests/data/config"]).assert();
+	let output = assert.success().code(0);
+	let stdout = String::from_utf8(output.get_output().stdout.to_vec()).unwrap();
+
+	let entries: Vec<serde_json::Value> = serde_json::from_str(&stdout).unwrap();
+
+	// Every entry carries both a host and its source file.
+	assert!(
+		entries
+			.iter()
+			.all(|e| e.get("host").and_then(|h| h.as_str()).is_some()
+				&& e.get("source").and_then(|s| s.as_str()).is_some()),
+		"every entry needs host + source, got: {stdout}"
+	);
+
+	// `bar` is only defined in the included file, so its source must point there.
+	let bar = entries.iter().find(|e| e["host"] == "bar").expect("included host `bar` present");
+	assert!(
+		bar["source"].as_str().unwrap().contains("config.d/sample"),
+		"bar's source should be the included file, got {}",
+		bar["source"]
+	);
+
+	// `foo` comes from the main config, not the included file.
+	let foo = entries.iter().find(|e| e["host"] == "foo").expect("host `foo` present");
+	let foo_source = foo["source"].as_str().unwrap();
+	assert!(
+		foo_source.contains("tests/data/config") && !foo_source.contains("config.d/sample"),
+		"foo source: {foo_source}"
+	);
+}
+
+#[test]
 fn search_finds_included_host() {
 	let mut cmd = get_command();
 	env::set_var("RUST_LOG", "none");

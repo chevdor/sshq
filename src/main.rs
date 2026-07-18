@@ -2,8 +2,19 @@ mod opts;
 use clap::{crate_name, crate_version, Parser};
 use env_logger::Env;
 use opts::*;
+use serde::Serialize;
 use ssh_cfg::{SshConfigParser, SshOptionKey, SshSection, SshSectionConfig};
 use std::path::{Path, PathBuf};
+
+/// A parsed ssh section together with the config file it was read from.
+type SourcedSection = (SshSection, SshSectionConfig, PathBuf);
+
+/// One host entry as emitted by `list --json`.
+#[derive(Serialize)]
+struct HostRecord {
+	host: String,
+	source: String,
+}
 
 /// Preprocess SSH config content to comment out unsupported options.
 ///
@@ -39,7 +50,7 @@ fn preprocess_ssh_config_content(content: &str) -> String {
 /// An `Include` may list several whitespace separated paths, and each of those
 /// may contain glob(7) wildcards (expanded in lexical order), matching
 /// OpenSSH's behaviour.
-fn resolve_includes(include: &str, base_dir: &Path, sections: &mut Vec<(SshSection, SshSectionConfig)>) {
+fn resolve_includes(include: &str, base_dir: &Path, sections: &mut Vec<SourcedSection>) {
 	for entry in include.split_whitespace() {
 		let pattern = base_dir.join(entry);
 		let pattern = pattern.to_string_lossy();
@@ -76,7 +87,7 @@ fn resolve_includes(include: &str, base_dir: &Path, sections: &mut Vec<(SshSecti
 /// dedicated [`SshSection::Include`], but one that appears inside a
 /// `Host`/`Match` block is stored as an [`SshOptionKey::Include`] option within
 /// that section. We handle both and splice the included sections in place.
-fn load_sections(path: &Path) -> Result<Vec<(SshSection, SshSectionConfig)>, Box<dyn std::error::Error>> {
+fn load_sections(path: &Path) -> Result<Vec<SourcedSection>, Box<dyn std::error::Error>> {
 	let content = std::fs::read_to_string(path)?;
 	let cleaned_content = preprocess_ssh_config_content(&content);
 	let ssh_config = SshConfigParser::parse_config_contents(&cleaned_content)?;
@@ -88,7 +99,7 @@ fn load_sections(path: &Path) -> Result<Vec<(SshSection, SshSectionConfig)>, Box
 		match section {
 			SshSection::Include(include) => resolve_includes(include, &base_dir, &mut sections),
 			_ => {
-				sections.push((section.clone(), config.clone()));
+				sections.push((section.clone(), config.clone(), path.to_path_buf()));
 				if let Some(include) = config.get(&SshOptionKey::Include) {
 					resolve_includes(include, &base_dir, &mut sections);
 				}
@@ -114,6 +125,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 	let opts: Opts = Opts::parse();
 	log::debug!("{opts:#?}");
+	let json = opts.json;
 
 	match opts.subcmd {
 		SubCommand::Search(search_opts) => {
@@ -121,8 +133,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 			let sections = load_sections(&resolve_config_path(search_opts.file.as_ref())?)?;
 
 			if let Some(pattern) = search_opts.pattern {
-				if let Some((SshSection::Host(host_name), host_config)) =
-					sections.iter().find(|(section, _)| matches!(section, SshSection::Host(h) if h.contains(&pattern)))
+				if let Some((SshSection::Host(host_name), host_config, _source)) = sections
+					.iter()
+					.find(|(section, _, _)| matches!(section, SshSection::Host(h) if h.contains(&pattern)))
 				{
 					println!("Host: {host_name}");
 
@@ -149,11 +162,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 			log::debug!("list");
 			let sections = load_sections(&resolve_config_path(list_opts.file.as_ref())?)?;
 
-			for (section, _config) in &sections {
-				if let SshSection::Host(host) = section {
-					for s in host.split(' ') {
-						println!("{s}");
-					}
+			// Flatten `Host` stanzas into individual host names, each tagged with
+			// the file it came from (the main config or an included file).
+			let records: Vec<HostRecord> = sections
+				.iter()
+				.filter_map(|(section, _config, source)| match section {
+					SshSection::Host(host) => Some((host, source)),
+					_ => None,
+				})
+				.flat_map(|(host, source)| {
+					host.split_whitespace()
+						.map(move |name| HostRecord { host: name.to_string(), source: source.display().to_string() })
+				})
+				.collect();
+
+			if json {
+				println!("{}", serde_json::to_string_pretty(&records)?);
+			} else {
+				for record in &records {
+					println!("{}", record.host);
 				}
 			}
 		}
