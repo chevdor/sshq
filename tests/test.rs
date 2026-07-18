@@ -37,3 +37,38 @@ fn list() {
 
 	println!("out = {:?}", out);
 }
+
+#[test]
+fn list_resolves_include() {
+	let mut cmd = get_command();
+	env::set_var("RUST_LOG", "none");
+
+	let assert = cmd.args(["list", "tests/data/config"]).assert();
+	let output = assert.success().code(0);
+	let hosts: Vec<String> = String::from_utf8(output.get_output().stdout.to_vec())
+		.unwrap()
+		.lines()
+		.filter(|s| !s.is_empty())
+		.map(ToString::to_string)
+		.collect();
+
+	// `bar` is only defined in tests/data/config.d/sample and reachable solely
+	// through the `Include config.d/sample` directive in tests/data/config.
+	assert!(hosts.iter().any(|h| h == "bar"), "expected included host `bar`, got {hosts:?}");
+	assert!(hosts.iter().any(|h| h == "foo"));
+	assert!(hosts.iter().any(|h| h == "*"));
+}
+
+#[test]
+fn search_finds_included_host() {
+	let mut cmd = get_command();
+	env::set_var("RUST_LOG", "none");
+
+	let assert = cmd.args(["search", "bar", "tests/data/config"]).assert();
+	let output = assert.success().code(0);
+	let stdout = String::from_utf8(output.get_output().stdout.to_vec()).unwrap();
+
+	// `bar` comes from the included file; searching for it must surface its config.
+	assert!(stdout.contains("Host: bar"), "expected `Host: bar`, got:\n{stdout}");
+	assert!(stdout.contains("192.168.1.3"), "expected bar's Hostname, got:\n{stdout}");
+}
