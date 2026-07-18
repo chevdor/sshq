@@ -146,4 +146,9 @@ fn search_finds_included_host() {
 	// `bar` comes from the included file; searching for it must surface its config.
 	assert!(stdout.contains("Host: bar"), "expected `Host: bar`, got:\n{stdout}");
 	assert!(stdout.contains("192.168.1.3"), "expected bar's Hostname, got:\n{stdout}");
+
+	// The source file is shown as the first line, before the host.
+	let first = stdout.lines().next().unwrap_or_default();
+	assert!(first.starts_with("Source:"), "first line should be the source, got: {first:?}");
+	assert!(first.contains("config.d/sample"), "source should be the included file, got: {first:?}");
 }

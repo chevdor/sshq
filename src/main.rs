@@ -133,10 +133,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 			let sections = load_sections(&resolve_config_path(search_opts.file.as_ref())?)?;
 
 			if let Some(pattern) = search_opts.pattern {
-				if let Some((SshSection::Host(host_name), host_config, _source)) = sections
+				if let Some((SshSection::Host(host_name), host_config, source)) = sections
 					.iter()
 					.find(|(section, _, _)| matches!(section, SshSection::Host(h) if h.contains(&pattern)))
 				{
+					println!("Source: {}", source.display());
 					println!("Host: {host_name}");
 
 					for key in [
