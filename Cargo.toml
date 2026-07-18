@@ -7,7 +7,7 @@ license = "MIT"
 name = "sshq"
 readme = "README.md"
 repository = "https://github.com/chevdor/sshq"
-version = "0.1.6"
+version = "0.1.7"
 
 [dependencies]
 clap = { version = "4", features = ["derive", "env", "unicode", "cargo"] }
@@ -15,8 +15,7 @@ dirs = "4.0"
 env_logger = "0.10"
 log = "0.4"
 serde = "1.0"
-ssh_cfg = "0.3"
-tokio = { version = "1.29", features = ["full"] }
+ssh_cnfg = { git = "https://github.com/chevdor/ssh_cnfg", tag = "v0.4.0" }
 
 [profile.release]
 codegen-units = 1

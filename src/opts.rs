@@ -8,9 +8,6 @@ pub struct Opts {
 	#[clap(subcommand)]
 	pub subcmd: SubCommand,
 
-	#[clap(index = 1, global = true)]
-	pub file: Option<PathBuf>,
-
 	/// Output as json
 	#[clap(short, long, global = true)]
 	pub json: bool,
@@ -28,7 +25,11 @@ pub enum SubCommand {
 
 /// The `list` command returns the list of entries.
 #[derive(Debug, Parser)]
-pub struct ListOpts {}
+pub struct ListOpts {
+	/// Optional path to an ssh config file. Defaults to `~/.ssh/config`.
+	#[clap(index = 1)]
+	pub file: Option<PathBuf>,
+}
 
 /// The `search` command searches for a given pattern.
 #[derive(Debug, Parser)]
@@ -36,4 +37,8 @@ pub struct SearchOpts {
 	/// Search pattern
 	#[clap(index = 1)]
 	pub pattern: Option<String>,
+
+	/// Optional path to an ssh config file. Defaults to `~/.ssh/config`.
+	#[clap(index = 2)]
+	pub file: Option<PathBuf>,
 }

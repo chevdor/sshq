@@ -32,8 +32,8 @@ fn list() {
 		.map(ToString::to_string)
 		.filter(|s| !s.is_empty())
 		.collect();
-	// It will be 2 until Include is supported, it will then be 3 with the example we have
-	assert_eq!(2, out.len());
+	// `*` and `foo` from the main config, plus `bar` pulled in via the `Include` directive.
+	assert_eq!(3, out.len());
 
 	println!("out = {:?}", out);
 }
