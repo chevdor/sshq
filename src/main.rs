@@ -33,15 +33,37 @@ fn preprocess_ssh_config_content(content: &str) -> String {
 	cleaned_content
 }
 
-/// Resolve an `Include` directive (which may list several whitespace separated
-/// paths) relative to `base_dir`, appending the parsed sections of each
-/// referenced file to `sections`.
+/// Resolve an `Include` directive relative to `base_dir`, appending the parsed
+/// sections of each referenced file to `sections`.
+///
+/// An `Include` may list several whitespace separated paths, and each of those
+/// may contain glob(7) wildcards (expanded in lexical order), matching
+/// OpenSSH's behaviour.
 fn resolve_includes(include: &str, base_dir: &Path, sections: &mut Vec<(SshSection, SshSectionConfig)>) {
 	for entry in include.split_whitespace() {
-		let included = base_dir.join(entry);
-		match load_sections(&included) {
-			Ok(mut nested) => sections.append(&mut nested),
-			Err(error) => log::warn!("Could not resolve include {}: {error}", included.display()),
+		let pattern = base_dir.join(entry);
+		let pattern = pattern.to_string_lossy();
+
+		let paths = match glob::glob(&pattern) {
+			Ok(paths) => paths,
+			Err(error) => {
+				log::warn!("Invalid include pattern {pattern}: {error}");
+				continue;
+			}
+		};
+
+		let mut matched: Vec<PathBuf> = paths.filter_map(Result::ok).collect();
+		matched.sort();
+
+		if matched.is_empty() {
+			log::debug!("Include pattern matched no files: {pattern}");
+		}
+
+		for path in matched {
+			match load_sections(&path) {
+				Ok(mut nested) => sections.append(&mut nested),
+				Err(error) => log::warn!("Could not resolve include {}: {error}", path.display()),
+			}
 		}
 	}
 }

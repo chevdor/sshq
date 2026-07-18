@@ -60,6 +60,26 @@ fn list_resolves_include() {
 }
 
 #[test]
+fn list_resolves_glob_include() {
+	let mut cmd = get_command();
+	env::set_var("RUST_LOG", "none");
+
+	// tests/data/config_glob pulls in tests/data/config.d/* via a glob Include.
+	let assert = cmd.args(["list", "tests/data/config_glob"]).assert();
+	let output = assert.success().code(0);
+	let hosts: Vec<String> = String::from_utf8(output.get_output().stdout.to_vec())
+		.unwrap()
+		.lines()
+		.filter(|s| !s.is_empty())
+		.map(ToString::to_string)
+		.collect();
+
+	// `alpha` from the main file, `bar` reached through the `Include config.d/*` glob.
+	assert!(hosts.iter().any(|h| h == "alpha"), "expected `alpha`, got {hosts:?}");
+	assert!(hosts.iter().any(|h| h == "bar"), "expected glob-included host `bar`, got {hosts:?}");
+}
+
+#[test]
 fn search_finds_included_host() {
 	let mut cmd = get_command();
 	env::set_var("RUST_LOG", "none");

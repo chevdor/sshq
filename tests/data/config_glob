@@ -1,0 +1,5 @@
+host alpha
+  Hostname 10.0.0.1
+  User alphauser
+
+Include config.d/*
